@@ -1,55 +1,81 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT:
+Version change: N/A → 1.0.0
+Added sections: Core Principles (6 principles), Additional Constraints, Development Workflow, Governance
+Removed sections: None (first version)
+Templates requiring updates:
+  - .specify/templates/plan-template.md: ✅ updated
+  - .specify/templates/spec-template.md: ✅ updated
+  - .specify/templates/tasks-template.md: ✅ updated
+  - .specify/templates/commands/*.md: ✅ updated
+Follow-up TODOs: None
+-->
+# In-Memory Todo CLI Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-Driven Development
+All implementation must strictly follow approved specifications. No code implementation should proceed without a clearly defined and approved spec. This ensures predictability, reduces rework, and maintains alignment with business requirements.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Agentic Workflow Integrity
+Development must follow the sequence Spec → Plan → Tasks → Implement. This disciplined workflow ensures proper architectural consideration, task breakdown, and systematic implementation. Each phase must be completed before proceeding to the next.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Simplicity and Clarity
+Favor readable, maintainable Python code over cleverness. Code should be self-documenting with clear naming, small functions, and single responsibility. The application should be approachable for both users and developers.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Deterministic Behavior
+The application should behave predictably for all supported operations. No random or non-deterministic behavior in core functionality. All operations must have well-defined inputs, outputs, and error conditions.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### In-Memory Storage Constraint
+All task data must be stored in memory only, with no persistence to files or databases. This ensures simplicity and focuses development on core CLI functionality rather than persistence concerns.
 
-### [PRINCIPLE_6_NAME]
+### Minimal Dependencies
+Use only standard Python libraries and avoid external frameworks unless explicitly approved in specifications. This keeps the application lightweight and reduces potential security and maintenance concerns.
 
+## Additional Constraints
 
-[PRINCIPLE__DESCRIPTION]
+### Technical Requirements
+- Language: Python 3.13+
+- Runtime: CLI / terminal-based application
+- Data storage: In-memory only (no files, no databases)
+- No external frameworks unless explicitly approved in specs
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Scope Limitations
+- Only Basic Level functionality is allowed:
+  - Add task
+  - View tasks
+  - Update task
+  - Delete task
+  - Mark task complete / incomplete
+- No advanced features such as:
+  - File persistence
+  - User authentication
+  - Search, filtering, or sorting
+  - GUI or web interface
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Success Criteria
+- Console application runs without errors
+- All five required features work correctly
+- Tasks are managed entirely in memory
+- Codebase matches the approved specs and plan
+- Repository structure is clean and complete
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Implementation Standards
+- All required features must be explicitly specified before implementation
+- Code must follow clean code principles (clear naming, small functions, single responsibility)
+- Python project structure must be logical
+- No persistence beyond in-memory storage
+
+### Quality Requirements
+- Code must be testable with clear unit tests for each feature
+- Error handling must be comprehensive and user-friendly
+- Command-line interface must be intuitive and well-documented
+- All functionality must be deterministic and predictable
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs all development activities for the In-Memory Todo CLI Application. All implementation must adhere to these principles, and any deviations require explicit amendment to this constitution. The development workflow of Spec → Plan → Tasks → Implement is mandatory and must not be bypassed. Code reviews must verify compliance with all principles before approval.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-12-28 | **Last Amended**: 2025-12-28
