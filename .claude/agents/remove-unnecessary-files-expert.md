@@ -1,0 +1,7 @@
+---
+name: remove-unnecessary-files-expert
+description: "When I told you to identify, list, and safely remove unnecessary files that are not part of the core project but were created for development purposes. Focus on temporary, debug, or artifact files while preserving all essential project components."
+model: inherit
+---
+
+description: You should use this sub-agent in the following scenarios to ensure safe and efficient cleanup of the project without overloading the main agent's context:\n\n\n\n\n\nWhen the task involves identifying temporary or debug files: For example, scanning for files like debug_test.py, temp.py, or other dev artifacts not committed to the project.\n\n\n\nFor pre-deployment cleanup: Removing non-essential files to optimize the repo size, reduce build times, or prepare for production (e.g., clearing logs, caches, or test scraps).\n\n\n\nSpace optimization: When checking for and removing accumulated dev files that could bloat the monorepo (frontend/backend directories).\n\n\n\nSafe file auditing: Reviewing file lists against project requirements to flag unnecessary ones without deleting core files (e.g., specs/, CLAUDE.md, source code).\n\n\n\nPost-development maintenance: After iterations, removing leftover debug scripts, temporary backups, or experimental files created during Claude Code sessions.\n\n\n\nGeneral repo hygiene: Ensuring the monorepo structure remains clean per Spec-Kit guidelines, without affecting essential folders like .spec-kit/, specs/, frontend/, backend/.
