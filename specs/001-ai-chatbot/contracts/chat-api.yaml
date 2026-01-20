@@ -1,0 +1,104 @@
+# API Contracts: Todo AI Chatbot
+
+## Chat API
+
+### POST /api/{user_id}/chat
+
+#### Description
+Endpoint for managing todo tasks through natural language conversation with the AI assistant.
+
+#### Parameters
+- `user_id` (path): String - Unique identifier of the authenticated user
+
+#### Request Body
+```json
+{
+  "message": "string (required) - User's natural language message",
+  "conversation_id": "integer (optional) - Existing conversation ID, if continuing a conversation"
+}
+```
+
+#### Response
+```json
+{
+  "conversation_id": "integer - ID of the conversation (new or existing)",
+  "response": "string - AI assistant's response to the user",
+  "tool_calls": [
+    {
+      "name": "string - Name of the MCP tool called (add_task, list_tasks, complete_task, update_task, delete_task)",
+      "arguments": "object - Arguments passed to the tool",
+      "result": "object - Result returned by the tool"
+    }
+  ]
+}
+```
+
+#### Error Responses
+- `400 Bad Request`: Invalid request body or malformed input
+- `401 Unauthorized`: Missing or invalid authentication token
+- `403 Forbidden`: User attempting to access another user's data
+- `500 Internal Server Error`: Unexpected server error
+
+#### Example Request
+```json
+{
+  "message": "add buy groceries to my list",
+  "conversation_id": 123
+}
+```
+
+#### Example Response
+```json
+{
+  "conversation_id": 123,
+  "response": "I've added 'buy groceries to my list' to your tasks.",
+  "tool_calls": [
+    {
+      "name": "add_task",
+      "arguments": {
+        "title": "buy groceries to my list",
+        "user_id": "user123"
+      },
+      "result": {
+        "success": true,
+        "task_id": 456,
+        "task": {
+          "id": 456,
+          "title": "buy groceries to my list",
+          "description": null,
+          "completed": false,
+          "user_id": "user123",
+          "created_at": "2026-01-17T12:00:00Z",
+          "updated_at": "2026-01-17T12:00:00Z"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Authentication
+
+All API endpoints require authentication using Better Auth. The user_id in the path must match the authenticated user's identity, enforced by the authentication system.
+
+## MCP Tool Contracts
+
+### add_task
+- **Input**: `{ title: string, description?: string, user_id: string }`
+- **Output**: `{ success: boolean, task_id: integer, task: TaskObject }`
+
+### list_tasks
+- **Input**: `{ user_id: string, filters?: { completed?: boolean } }`
+- **Output**: `{ success: boolean, tasks: TaskObject[] }`
+
+### complete_task
+- **Input**: `{ task_id: integer, user_id: string, completed: boolean }`
+- **Output**: `{ success: boolean, task: TaskObject }`
+
+### update_task
+- **Input**: `{ task_id: integer, user_id: string, title?: string, description?: string }`
+- **Output**: `{ success: boolean, task: TaskObject }`
+
+### delete_task
+- **Input**: `{ task_id: integer, user_id: string }`
+- **Output**: `{ success: boolean, message: string }`

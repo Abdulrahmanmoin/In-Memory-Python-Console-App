@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Python 3.11 + FastAPI, OpenAI Agents SDK, Official MCP SDK, SQLModel, Neon PostgreSQL, Better Auth, OpenAI ChatKit (001-ai-chatbot)
+- Neon Serverless PostgreSQL with SQLModel ORM (001-ai-chatbot)
+
+## Recent Changes
+- 001-ai-chatbot: Added Python 3.11 + FastAPI, OpenAI Agents SDK, Official MCP SDK, SQLModel, Neon PostgreSQL, Better Auth, OpenAI ChatKit
