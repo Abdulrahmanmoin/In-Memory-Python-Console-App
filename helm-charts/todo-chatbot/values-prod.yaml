@@ -1,0 +1,97 @@
+# Production environment values for todo-chatbot
+# Override default values for production deployments
+
+# Backend configuration for production
+backend:
+  # Increased replicas for high availability
+  replicaCount: 3
+
+  image:
+    repository: todo-backend
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent  # Only pull if not present in production
+
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+
+  # Full production resources
+  resources:
+    requests:
+      cpu: 200m
+      memory: 384Mi
+    limits:
+      cpu: 200m
+      memory: 384Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Frontend configuration for production
+frontend:
+  # Increased replicas for high availability
+  replicaCount: 3
+
+  image:
+    repository: todo-frontend
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent  # Only pull if not present in production
+
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 3000
+    nodePort: 30080
+
+  # Full production resources
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# ConfigMap data for production
+configMap:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"  # Standard logging for production
+
+# Secret references for production
+secrets:
+  backendSecretName: "todo-backend-secrets-prod"
+  databaseSecretName: "todo-database-secrets-prod"

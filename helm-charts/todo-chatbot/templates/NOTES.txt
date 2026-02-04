@@ -1,0 +1,131 @@
+========================================
+Todo Chatbot Application Deployed!
+========================================
+
+Chart Version: {{ .Chart.Version }}
+App Version: {{ .Chart.AppVersion }}
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+========================================
+DEPLOYMENT STATUS
+========================================
+
+To check the status of your deployment:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+To view backend pods:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l component=backend
+
+To view frontend pods:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l component=frontend
+
+========================================
+ACCESSING THE APPLICATION
+========================================
+
+Frontend URL:
+{{- if eq .Values.frontend.service.type "NodePort" }}
+
+  The frontend is exposed via NodePort.
+
+  Get the Node IP:
+    kubectl get nodes -o wide
+
+  Access the application at:
+    http://<NODE_IP>:{{ .Values.frontend.service.nodePort }}
+
+  Or use kubectl port-forward for local access:
+    kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "todo-chatbot.frontend.serviceName" . }} 8080:{{ .Values.frontend.service.port }}
+    Then access: http://localhost:8080
+
+{{- else if eq .Values.frontend.service.type "LoadBalancer" }}
+
+  Get the external IP address:
+    kubectl get svc -n {{ .Release.Namespace }} {{ include "todo-chatbot.frontend.serviceName" . }}
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  Watch the status with:
+    kubectl get svc -n {{ .Release.Namespace }} -w {{ include "todo-chatbot.frontend.serviceName" . }}
+
+{{- else }}
+
+  The frontend service is ClusterIP. To access it:
+    kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "todo-chatbot.frontend.serviceName" . }} 8080:{{ .Values.frontend.service.port }}
+    Then access: http://localhost:8080
+
+{{- end }}
+
+Backend API:
+
+  The backend is only accessible within the cluster at:
+    http://{{ include "todo-chatbot.backend.serviceName" . }}:{{ .Values.backend.service.port }}
+
+  To access the backend API locally for testing:
+    kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "todo-chatbot.backend.serviceName" . }} 8000:{{ .Values.backend.service.port }}
+    Then access: http://localhost:8000
+
+========================================
+HEALTH CHECKS
+========================================
+
+Backend health endpoint:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "todo-chatbot.backend.serviceName" . }} 8000:{{ .Values.backend.service.port }}
+  curl http://localhost:8000/health
+
+Frontend health endpoint:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "todo-chatbot.frontend.serviceName" . }} 3000:{{ .Values.frontend.service.port }}
+  curl http://localhost:3000/api/health
+
+========================================
+VIEW LOGS
+========================================
+
+Backend logs:
+  kubectl logs -n {{ .Release.Namespace }} -l component=backend --tail=100 -f
+
+Frontend logs:
+  kubectl logs -n {{ .Release.Namespace }} -l component=frontend --tail=100 -f
+
+========================================
+IMPORTANT NOTES
+========================================
+
+Secrets Required:
+  This chart requires the following secrets to be created manually:
+
+  1. {{ .Values.secrets.backendSecretName }} - Backend credentials
+     Required keys: OPENAI_API_KEY, SECRET_KEY
+
+  2. {{ .Values.secrets.databaseSecretName }} - Database credentials
+     Required keys: DATABASE_URL
+
+  Create secrets before deployment or pods will fail to start.
+
+Resource Configuration:
+  - Backend: {{ .Values.backend.replicaCount }} replica(s) with {{ .Values.backend.resources.requests.cpu }} CPU and {{ .Values.backend.resources.requests.memory }} memory
+  - Frontend: {{ .Values.frontend.replicaCount }} replica(s) with {{ .Values.frontend.resources.requests.cpu }} CPU and {{ .Values.frontend.resources.requests.memory }} memory
+
+========================================
+USEFUL COMMANDS
+========================================
+
+Upgrade the release:
+  helm upgrade {{ .Release.Name }} ./helm-charts/todo-chatbot -n {{ .Release.Namespace }}
+
+Rollback to previous version:
+  helm rollback {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+Uninstall the release:
+  helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+View release history:
+  helm history {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+========================================
+For more information, visit:
+{{ .Chart.Home }}
+========================================

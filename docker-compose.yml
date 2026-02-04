@@ -1,0 +1,134 @@
+# Docker Compose configuration for Todo AI Chatbot application
+# Production-ready multi-service orchestration
+# Version: 1.0.0
+
+version: '3.9'
+
+services:
+  # ============================================================================
+  # Backend Service - FastAPI Application
+  # ============================================================================
+  backend:
+    image: todo-backend:v1.0.0
+    container_name: todo-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    environment:
+      # Database configuration
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Application settings
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://frontend:3000}
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+
+      # AI/LLM Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+      # Environment
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - todo-network
+    # Resource limits for production stability
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Frontend Service - Next.js Application
+  # ============================================================================
+  frontend:
+    image: todo-frontend:v1.0.0
+    container_name: todo-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3000:3000"
+    environment:
+      # Backend API URL (internal container communication)
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:8000}
+      BACKEND_URL: http://backend:8000
+
+      # Better Auth configuration
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+
+      # Database configuration (for Better Auth)
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Node environment
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - todo-network
+    # Resource limits for production stability
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ============================================================================
+# Networks Configuration
+# ============================================================================
+networks:
+  todo-network:
+    name: todo-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ============================================================================
+# Volumes Configuration (if needed for future persistence)
+# ============================================================================
+# volumes:
+#   backend-data:
+#     name: todo-backend-data
+#   frontend-data:
+#     name: todo-frontend-data

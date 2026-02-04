@@ -1,0 +1,140 @@
+# Default values for todo-chatbot Helm chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+nameOverride: ""
+fullnameOverride: ""
+
+# Backend configuration
+backend:
+  # Number of backend replicas
+  replicaCount: 2
+
+  image:
+    # Backend container image repository
+    repository: todo-backend
+    # Backend container image tag
+    tag: "v1.0.0"
+    # Image pull policy
+    pullPolicy: IfNotPresent
+
+  # Backend service configuration
+  service:
+    # Service type for backend (ClusterIP for internal access only)
+    type: ClusterIP
+    # Service port for backend
+    port: 8000
+    # Target port on the backend container
+    targetPort: 8000
+
+  # Resource requests and limits for backend pods
+  resources:
+    requests:
+      # CPU request for backend
+      cpu: 200m
+      # Memory request for backend
+      memory: 384Mi
+    limits:
+      # CPU limit for backend
+      cpu: 200m
+      # Memory limit for backend
+      memory: 384Mi
+
+  # Liveness probe configuration for backend
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  # Readiness probe configuration for backend
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Frontend configuration
+frontend:
+  # Number of frontend replicas
+  replicaCount: 2
+
+  image:
+    # Frontend container image repository
+    repository: todo-frontend
+    # Frontend container image tag
+    tag: "v1.0.0"
+    # Image pull policy
+    pullPolicy: IfNotPresent
+
+  # Frontend service configuration
+  service:
+    # Service type for frontend (NodePort for external access)
+    type: NodePort
+    # Service port for frontend (external facing)
+    port: 80
+    # Target port on the frontend container
+    targetPort: 3000
+    # NodePort for external access
+    nodePort: 30080
+
+  # Resource requests and limits for frontend pods
+  resources:
+    requests:
+      # CPU request for frontend
+      cpu: 250m
+      # Memory request for frontend
+      memory: 512Mi
+    limits:
+      # CPU limit for frontend
+      cpu: 250m
+      # Memory limit for frontend
+      memory: 512Mi
+
+  # Liveness probe configuration for frontend
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  # Readiness probe configuration for frontend
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# ConfigMap data
+configMap:
+  # External backend URL for frontend browser access (override for Minikube/local dev)
+  # If not set, will use internal service name (for production with Ingress)
+  # For Minikube: set this to the minikube service URL (e.g., http://127.0.0.1:30827)
+  NEXT_PUBLIC_API_URL_OVERRIDE: ""
+  # Node environment
+  NODE_ENV: "production"
+  # Logging level
+  LOG_LEVEL: "info"
+
+# Secret references (secrets must be created manually before deployment)
+secrets:
+  # Name of the secret containing backend credentials
+  backendSecretName: "todo-backend-secrets"
+  # Name of the secret containing database credentials
+  databaseSecretName: "todo-database-secrets"
+
+# Image pull secrets (if using private registry)
+imagePullSecrets: []

@@ -1,0 +1,97 @@
+# Development environment values for todo-chatbot
+# Override default values for development deployments
+
+# Backend configuration for development
+backend:
+  # Reduced replicas for dev environment
+  replicaCount: 1
+
+  image:
+    repository: todo-backend
+    tag: "v1.0.0"
+    pullPolicy: Always  # Always pull latest dev images
+
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+
+  # Reduced resources for development
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Frontend configuration for development
+frontend:
+  # Reduced replicas for dev environment
+  replicaCount: 1
+
+  image:
+    repository: todo-frontend
+    tag: "v1.0.0"
+    pullPolicy: Always  # Always pull latest dev images
+
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 3000
+    nodePort: 30080
+
+  # Reduced resources for development
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# ConfigMap data for development
+configMap:
+  NODE_ENV: "development"
+  LOG_LEVEL: "debug"  # More verbose logging for dev
+
+# Secret references
+secrets:
+  backendSecretName: "todo-backend-secrets-dev"
+  databaseSecretName: "todo-database-secrets-dev"

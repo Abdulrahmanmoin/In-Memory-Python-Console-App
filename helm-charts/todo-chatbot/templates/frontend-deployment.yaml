@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-chatbot.fullname" . }}-frontend
+  labels:
+    {{- include "todo-chatbot.frontend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "todo-chatbot.frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "todo-chatbot.frontend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: frontend
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.frontend.service.targetPort }}
+          protocol: TCP
+        env:
+        # Environment variables from ConfigMap
+        - name: NEXT_PUBLIC_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.configMapName" . }}
+              key: NEXT_PUBLIC_API_URL
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.configMapName" . }}
+              key: NODE_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.configMapName" . }}
+              key: LOG_LEVEL
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.frontend.livenessProbe.httpGet.path }}
+            port: {{ .Values.frontend.livenessProbe.httpGet.port }}
+          initialDelaySeconds: {{ .Values.frontend.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.frontend.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.frontend.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.frontend.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.frontend.readinessProbe.httpGet.path }}
+            port: {{ .Values.frontend.readinessProbe.httpGet.port }}
+          initialDelaySeconds: {{ .Values.frontend.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.frontend.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.frontend.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.frontend.readinessProbe.failureThreshold }}
+        resources:
+          {{- toYaml .Values.frontend.resources | nindent 10 }}
