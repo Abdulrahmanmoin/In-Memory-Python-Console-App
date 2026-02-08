@@ -21,12 +21,14 @@ backend:
 
   # Backend service configuration
   service:
-    # Service type for backend (ClusterIP for internal access only)
-    type: ClusterIP
+    # Service type for backend (NodePort for external access in local dev)
+    type: NodePort
     # Service port for backend
     port: 8000
     # Target port on the backend container
     targetPort: 8000
+    # NodePort for external access (30000-32767 range)
+    nodePort: 30800
 
   # Resource requests and limits for backend pods
   resources:
@@ -122,8 +124,9 @@ frontend:
 configMap:
   # External backend URL for frontend browser access (override for Minikube/local dev)
   # If not set, will use internal service name (for production with Ingress)
+  # For Docker Desktop Kubernetes: set to http://localhost:30800
   # For Minikube: set this to the minikube service URL (e.g., http://127.0.0.1:30827)
-  NEXT_PUBLIC_API_URL_OVERRIDE: ""
+  NEXT_PUBLIC_API_URL_OVERRIDE: "http://localhost:30800"
   # Node environment
   NODE_ENV: "production"
   # Logging level
